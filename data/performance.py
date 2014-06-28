@@ -40,9 +40,9 @@ class Performance(object):
         seconds = int(self.total_time().total_seconds())
 
         if seconds > 0:
-            return "%s: %s seconds %s" % (self.performer, 
+            return "%s: %s seconds %s" % (self.performer.name, 
                 seconds, 
                 status)
         else:
-            return "%s %s" % (self.performer, 
+            return "%s %s" % (self.performer.name, 
                 status)

@@ -21,13 +21,7 @@ class Performer(Base):
     #   self.email = email
     #   self.mobile = mobile
 if __name__ == "__main__":
-    from sqlalchemy import create_engine
-    from sqlalchemy.orm import sessionmaker
-
-    engine = create_engine('sqlite:///:memory:', echo=True)
-    Session = sessionmaker(bind=engine)
-    Base.metadata.create_all(engine)
-
+    from data import Session
     # Do an actual write.
     session = Session()
 

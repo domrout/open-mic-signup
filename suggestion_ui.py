@@ -1,21 +1,21 @@
 import urwid
 from functools import partial
-from sqlalchemy.orm import sessionmaker
 import data.performer as performer
 from data.performer import Performer
 from ui_helpers import *
 from signup_performer_ui import SignupPerformerUI
 from page_manager import *
-Session = sessionmaker()
+from data import Session
 
 class SuggestionListUI(object):
     """Shows a list of suggested performers and allows selection amongst them"""
-    def __init__(self, parent):
+    def __init__(self, callback, parent):
         self.listwalker = urwid.SimpleFocusListWalker([])
 
         self.widget = urwid.ListBox(self.listwalker)
         self.widget.keypress = self.listen(self.widget.keypress)
 
+        self.callback = callback
         self.parent = parent
         self.suggestions = []
 
@@ -32,7 +32,7 @@ class SuggestionListUI(object):
     def _row(self, performer):
         """Create a row for that button which can be selected."""
         button = urwid.Button(performer.name)
-        urwid.connect_signal(button, "click", self.parent.done, performer)
+        urwid.connect_signal(button, "click", self.callback, performer)
         return button
 
     def focus_changed(self):
@@ -55,16 +55,12 @@ class SuggestionListUI(object):
 
 class SuggestionUI(object):
     def __init__(self, callback, manager):
-        self.ui()
         self.callback = callback
         self.performer = None
         self.title = "Select Performer"
         self.shortcuts = None
         self.manager = manager
-
-    def done(self, _, performer):
-        """A performer was selected"""
-        self.callback(performer)
+        self.ui()
 
     def update(self, _, text):
         """Gets the current list of suggestions and feeds to the suggestion list"""
@@ -86,12 +82,13 @@ class SuggestionUI(object):
 
     def sign_up(self, _):
         """Begin the sign up process"""
-        signup = SignupPerformerUI(self.callback, self.manager)
-        self.manager.show_ui(signup)
+        signup = SignupPerformerUI(self.manager.pop_callback(self.callback), 
+            self.manager)
+        self.manager.push(signup)
 
     def ui(self):
         """Create the interface for the form"""
-        self.suggestion_list = SuggestionListUI(self)
+        self.suggestion_list = SuggestionListUI(self.callback, self)
         
         self.query = urwid.Edit(u"Search ")
 
@@ -143,7 +140,7 @@ if __name__ == "__main__":
     manager = PageManager()
     ui = SuggestionUI(exit, manager)
 
-    manager.show_ui(ui)
+    manager.push(ui)
 
     manager.run()
 

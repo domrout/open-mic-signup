@@ -1,10 +1,7 @@
 import urwid
 from functools import partial
-from sqlalchemy.orm import sessionmaker
-import data.performer as performer
 from data.performer import Performer
-
-Session = sessionmaker()
+from data import Session
 
 class SignupPerformerUI(object):
     """Form to sign up a new performer for the first time"""
@@ -15,16 +12,23 @@ class SignupPerformerUI(object):
         self.ui()
         self.manager = manager
 
+    def _target(self, session):
+        """Get the performer object to save"""
+        return Performer()
+
     def done(self, _):
-        """Gets the current list of suggestions and feeds to the suggestion list"""
+        """Saves the current performer details"""
         session = Session() # Get a database session
-        performer = Performer(name=self.name.get_edit_text(),
-            email=self.email.get_edit_text(), 
-            mobile = self.mobile.get_edit_text())
+
+        performer = self._target(session)
+        performer.name   = self.name.get_edit_text()
+        performer.email  = self.email.get_edit_text()
+        performer.mobile = self.mobile.get_edit_text()
 
         session.add(performer)
         session.commit()
-        self.callback(performer)
+        self.callback(None, performer)
+
 
     def ui(self, performer = None):
         """Create the interface for the form"""  
@@ -51,3 +55,19 @@ class SignupPerformerUI(object):
 
         widget_list = urwid.ListBox(listwalker)
         self.widget = urwid.Padding(widget_list, "center", ("relative", 50))
+
+class EditPerformerUI(SignupPerformerUI):
+    """Edits the attributes on an existing performer"""
+    def __init__(self, performer, callback, manager):
+        self.callback = callback
+        self.title = "Edit Performer"
+        self.shortcuts = None
+        self.performer = performer
+        self.ui(performer)
+        self.manager = manager
+
+    def _target(self, session):
+        """Get the selected performer using the current session"""
+        return session.query(Performer) \
+            .filter(Performer.id == self.performer.id).first()
+

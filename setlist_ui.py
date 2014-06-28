@@ -2,6 +2,7 @@ import urwid, sqlite3, datetime
 from datetime import datetime as dt
 from functools import partial
 from data.setlist import SetList
+from performers_ui import PerformersUI
 from ui_helpers import *
 import data.performer
 import suggestion_ui
@@ -18,11 +19,13 @@ class SetListMenuUI(object):
         self.grabbed_index = None
         self.manager = manager
         self.title = "Open Space"
+
         # Store shortcuts which can be used in the chrome to make life easier.
         self.shortcuts = urwid.Columns([urwid.Text("a - Add"), 
             urwid.Text("n - Next"), 
             urwid.Text("s - Start"),
             urwid.Text("p - Pause"),
+            urwid.Text("m - Members"),
             urwid.Text("enter - Move")])
 
         # Create the needed widget
@@ -67,6 +70,14 @@ class SetListMenuUI(object):
         self.setlist.stop()
         self.update()
 
+    def delete(self):
+        """Removes the currently selected performance from the list"""
+        if len(self.setlist):
+            _, focus = self.listwalker.get_focus()
+
+            del self.listwalker[focus] # Remove everything
+            del self.setlist[focus]
+
     def grab(self, performance, _):
         """Grabs the specified performance"""        
         self.grabbed_index = self.setlist.index(performance)
@@ -92,7 +103,6 @@ class SetListMenuUI(object):
     def signup(self, performer):
         """Signs up a new performer to the list and updates"""
         self.setlist.signup(performer)
-        self.manager.show_ui(self)
         self.update()
 
     def listen(self, parent):
@@ -118,6 +128,16 @@ class SetListMenuUI(object):
                 # Pause current performance.
                 self.stop()
                 return None
+            elif key in ('d', 'backspace', 'delete'):
+                # Pause current performance.
+                self.delete()
+                return None
+            elif key in ('m', 'M'):
+                # Show member's list
+                self.manager.push(
+                    PerformersUI(self.manager.pop, 
+                    self.manager)) 
+                return None
             elif key in ("n"):
                 # Move to next performer in the list
                 next_performer = self.setlist.next()
@@ -126,30 +146,25 @@ class SetListMenuUI(object):
                 return None
             elif key in ("a"):
                 # Add a new performer
-                ui = suggestion_ui.SuggestionUI(self.signup, self.manager)
-                self.manager.show_ui(ui)
+                ui = suggestion_ui.SuggestionUI(self.manager.pop_callback(self.signup), 
+                    self.manager)
+                self.manager.push(ui)
             else:
                 return parent(size, key)
 
         return keypress
 
 if __name__ == "__main__":
-    from sqlalchemy import create_engine
-
-    engine = create_engine('sqlite:///:memory:', echo=False)
-    suggestion_ui.Session.configure(bind=engine) 
-    signup_performer_ui.Session.configure(bind=engine) 
-
-    data.performer.Base.metadata.create_all(engine)
-
     # Create some example performers
     setlist = SetList()
 
-    for performer in ["Dom", "Al Pearson", "Al Gordon"]:
+    for performer in [data.performer.Performer(name="Dominic Rout", email="", mobile = "213123123"),
+        data.performer.Performer(name="Al G", email="alg@example.com", mobile = "1234123412312"),
+        data.performer.Performer(name="Al P", email="alp@example.com", mobile = "12341231123412312")]:
         setlist.signup(performer)
 
     manager = PageManager()
     ui = SetListMenuUI(setlist, manager)
-    manager.show_ui(ui)
+    manager.push(ui)
     ui.update_loop(manager.loop) 
     manager.run()
