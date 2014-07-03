@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import urwid, sqlite3, datetime
 from datetime import datetime as dt
 from functools import partial

@@ -34,6 +34,8 @@ class SetList(list):
 
     def next(self):
         """Returns the next performance in the list or None if we're at the end"""
+        if len(self) == 0:
+            return None
         if self.last_performance == None:
             return self[0] # No previous performance. Go for the first one.
 
