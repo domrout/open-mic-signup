@@ -52,7 +52,7 @@ class SetListMenuUI(object):
 
         del self.listwalker[:] # Remove everything
         # Create again
-        for index, performance in enumerate(self.setlist):
+        for index, performance in enumerate(self.setlist.performances):
             self.listwalker.append(self._performance_row(performance))
 
         if focus != None:
@@ -72,29 +72,29 @@ class SetListMenuUI(object):
 
     def delete(self):
         """Removes the currently selected performance from the list"""
-        if len(self.setlist):
+        if len(self.setlist.performances):
             _, focus = self.listwalker.get_focus()
 
             del self.listwalker[focus] # Remove everything
-            del self.setlist[focus]
+            del self.setlist.performances[focus]
 
     def grab(self, performance, _):
         """Grabs the specified performance"""        
-        self.grabbed_index = self.setlist.index(performance)
+        self.grabbed_index = self.setlist.performances.index(performance)
 
     def nudge(self, offset):
         """Nudges item at grabbed_index by offset if possible"""
         index = self.grabbed_index + offset
 
-        if index >= 0 and index < len(self.setlist):
-            performance = self.setlist[self.grabbed_index]
+        if index >= 0 and index < len(self.setlist.performances):
+            performance = self.setlist.performances[self.grabbed_index]
 
             # Delete old index
-            del self.setlist[self.grabbed_index]
+            del self.setlist.performances[self.grabbed_index]
 
             # Update the index and reinsert
             self.grabbed_index = index
-            self.setlist.insert(index, performance)
+            self.setlist.performances.insert(index, performance)
 
             # Fix focus
             self.listwalker.set_focus(index)

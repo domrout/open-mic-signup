@@ -81,12 +81,15 @@ class PerformersUI(object):
     def listen(self, parent):
         def keypress(size, key):
             """Listen for keys and send event for deletion, addition etc"""
-            selected = self.performers[self.listwalker.get_focus()[1]]
-            if key == 'd':
+            selected = None
+            if len(self.performers):
+                selected = self.performers[self.listwalker.get_focus()[1]]
+
+            if key == 'd' and selected:
                 self.delete(selected)             
             elif key == 'a':
                 self.add()
-            elif key == 'e':
+            elif key == 'e' and selected:
                 self.edit(None, selected)
             else:
                 return parent(size, key)

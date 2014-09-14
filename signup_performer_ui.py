@@ -56,6 +56,16 @@ class SignupPerformerUI(object):
         widget_list = urwid.ListBox(listwalker)
         self.widget = urwid.Padding(widget_list, "center", ("relative", 50))
 
+        self.widget.keypress = self.listen_tab(self.widget.keypress)
+
+    def listen_tab(self, parent):
+        def keypress(size, key):
+            if key == "tab":
+                key = "down"
+            return parent(size, key)
+        return keypress
+
+
 class EditPerformerUI(SignupPerformerUI):
     """Edits the attributes on an existing performer"""
     def __init__(self, performer, callback, manager):
