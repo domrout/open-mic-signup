@@ -90,18 +90,21 @@ class SuggestionUI(object):
         """Create the interface for the form"""
         self.suggestion_list = SuggestionListUI(self.callback, self)
         
-        self.query = urwid.Edit(u"Search ")
+        self.query = urwid.Edit("Search: ")
 
         urwid.connect_signal(self.query, 'change', self.update)
 
         self.sign_up_button = urwid.Button("Sign up new performer")
         urwid.connect_signal(self.sign_up_button, 'click', self.sign_up)
 
-
         # Create basic display fields
-        self.name = urwid.Text(  u"Name: -------------")
-        self.email = urwid.Text( u"Email: ------------")
-        self.mobile = urwid.Text(u"Mobile: -----------")
+        self.name = urwid.Text(  "Name: -------------")
+        self.email = urwid.Text( "Email: ------------")
+        self.mobile = urwid.Text("Mobile: -----------")
+        self.divider = urwid.Text("\n"+("="*40)+"\n")
+        # Create a backup "simple mode"
+        self.free_add = urwid.Edit("Just this once: ")
+        self.free_add.keypress = self.listen_free_add(self.free_add.keypress)
 
         listwalker = urwid.SimpleFocusListWalker([
             self.sign_up_button,
@@ -109,11 +112,23 @@ class SuggestionUI(object):
             urwid.BoxAdapter(self.suggestion_list.widget, 5),
             self.name,
             self.email,
-            self.mobile
+            self.mobile,
+            self.divider,
+            self.free_add
             ])
 
         widget_list = urwid.ListBox(listwalker)
         self.widget = urwid.Padding(widget_list, "center", ("relative", 50))
+
+    def listen_free_add(self, parent):
+        def keypress(size, key):
+            """Listen for return a"""
+            if key in ("return", "enter"):
+                performer = Performer(name=self.free_add.get_edit_text())
+                self.callback(performer)
+            return parent(size, key)
+        return keypress
+
 
 if __name__ == "__main__":
     from sqlalchemy import create_engine
@@ -151,8 +166,8 @@ if __name__ == "__main__":
 #         heading = urwid.BoxAdapter(heading, 5)
 
 #         suggestion_listwalker = urwid.SimpleFocusListWalker([
-#             urwid.Button(u"Dominic"),
-#             urwid.Button(u"Rout")
+#             urwid.Button("Dominic"),
+#             urwid.Button("Rout")
 #             ])
 
 #         def update_suggestions(edit, text):
@@ -162,8 +177,8 @@ if __name__ == "__main__":
 #                 suggestion_listwalker.append(urwid.Button(performer))
 
 #         suggestion_list = urwid.ListBox(suggestion_listwalker)
-#         name_edit = urwid.Edit(u"Name ")
-#         email_edit = urwid.Edit(u"Email ")
+#         name_edit = urwid.Edit("Name ")
+#         email_edit = urwid.Edit("Email ")
 #         listwalker = urwid.SimpleFocusListWalker([
 #             name_edit,
 #             urwid.BoxAdapter(suggestion_list, 5),

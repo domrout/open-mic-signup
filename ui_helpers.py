@@ -5,5 +5,5 @@ class MenuButton(urwid.Button):
         super(MenuButton, self).__init__("")
         urwid.connect_signal(self, 'click', callback)
         self._w = urwid.AttrMap(urwid.SelectableIcon(
-            [u'  \N{BULLET} ', caption], 2), None, 'selected')
+            ['  - ', caption], 2), None, 'selected')
 

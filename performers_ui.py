@@ -81,12 +81,15 @@ class PerformersUI(object):
     def listen(self, parent):
         def keypress(size, key):
             """Listen for keys and send event for deletion, addition etc"""
-            selected = self.performers[self.listwalker.get_focus()[1]]
-            if key == 'd':
+            selected = None
+            if len(self.performers):
+                selected = self.performers[self.listwalker.get_focus()[1]]
+
+            if key == 'd' and selected:
                 self.delete(selected)             
             elif key == 'a':
                 self.add()
-            elif key == 'e':
+            elif key == 'e' and selected:
                 self.edit(None, selected)
             else:
                 return parent(size, key)
@@ -128,8 +131,8 @@ if __name__ == "__main__":
 #         heading = urwid.BoxAdapter(heading, 5)
 
 #         suggestion_listwalker = urwid.SimpleFocusListWalker([
-#             urwid.Button(u"Dominic"),
-#             urwid.Button(u"Rout")
+#             urwid.Button("Dominic"),
+#             urwid.Button("Rout")
 #             ])
 
 #         def update_suggestions(edit, text):
@@ -139,8 +142,8 @@ if __name__ == "__main__":
 #                 suggestion_listwalker.append(urwid.Button(performer))
 
 #         suggestion_list = urwid.ListBox(suggestion_listwalker)
-#         name_edit = urwid.Edit(u"Name ")
-#         email_edit = urwid.Edit(u"Email ")
+#         name_edit = urwid.Edit("Name ")
+#         email_edit = urwid.Edit("Email ")
 #         listwalker = urwid.SimpleFocusListWalker([
 #             name_edit,
 #             urwid.BoxAdapter(suggestion_list, 5),

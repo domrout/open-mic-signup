@@ -1,16 +1,23 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import MetaData
 from sqlalchemy import Column, Integer, String
-Base = declarative_base()
+
+from sqlalchemy.orm import relationship
+from data.base import Base
+
+
 
 class Performer(Base):
-    """Represents a talented musician or poet or comedy!"""
+    """Represents a talented musician or poet or comed-Ian!"""
     __tablename__ = 'performers'
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
     email = Column(String)
     mobile = Column(String)
+    nfc = Column(String)
+
+    performances = relationship("Performance")
 
     def __repr__(self):
        return "<Performer(name='%s', email='%s', mobile='%s')>" % (
@@ -33,5 +40,7 @@ if __name__ == "__main__":
     session.add(al_g)
     session.add(al_p)
 
-    found_al = session.query(Performer).filter(Performer.name.like("%Al%")).first() 
-    print found_al
+    found_al = session.query(Performer).\
+        filter(Performer.name.like("%Al%")).first() 
+    print(found_al)
+
