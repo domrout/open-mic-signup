@@ -54,6 +54,7 @@ class SetList(Base):
                 return self.performances[0] # No previous performance. Go for the first one.
             else:
                 return None
+
         index = self.performances.index(self.last_performance)
         if index + 1 < len(self.performances):
             return self.performances[index + 1]

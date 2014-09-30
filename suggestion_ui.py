@@ -101,6 +101,7 @@ class SuggestionUI(object):
         self.name = urwid.Text(  "Name: -------------")
         self.email = urwid.Text( "Email: ------------")
         self.mobile = urwid.Text("Mobile: -----------")
+
         self.divider = urwid.Text("\n"+("="*40)+"\n")
         # Create a backup "simple mode"
         self.free_add = urwid.Edit("Just this once: ")
